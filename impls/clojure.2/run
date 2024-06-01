@@ -1,0 +1,4 @@
+#!/bin/bash
+STEP=${STEP:-stepA_mal}
+exec java -jar $(dirname $0)/dist/${STEP}-standalone.jar "${@}"
+# echo $STEP
