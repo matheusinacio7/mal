@@ -1,14 +1,16 @@
 (ns mal.step1-read-print
-  (:gen-class))
+  (:gen-class) 
+  (:require [mal.printer :as printer]
+            [mal.reader :as reader]))
 
 (defn READ [in]
-  in)
+  (reader/read-str in))
 
 (defn EVAL [in]
   in)
 
 (defn PRINT [in]
-  in)
+  (printer/print-ast in))
 
 (defn rep [in]
   (-> in

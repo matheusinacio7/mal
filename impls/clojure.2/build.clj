@@ -1,7 +1,7 @@
 (ns build
   (:require [clojure.tools.build.api :as b]))
 
-(def lib 'heyset/step0_repl)
+(def lib 'heyset/step1_read_print)
 (def version (format "1.2.%s" (b/git-count-revs nil)))
 (def class-dir "dist/classes")
 (def uber-file (format "dist/%s-standalone.jar" (name lib)))
@@ -17,9 +17,9 @@
   (b/copy-dir {:src-dirs ["src" "resources"]
                :target-dir class-dir})
   (b/compile-clj {:basis @basis
-                  :ns-compile '[mal.step0-repl]
+                  :ns-compile '[mal.step1-read-print]
                   :class-dir class-dir})
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis @basis
-           :main 'mal.step0-repl}))
+           :main 'mal.step1-read-print}))
