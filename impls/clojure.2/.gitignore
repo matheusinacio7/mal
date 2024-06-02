@@ -2,3 +2,5 @@
 dist
 .clj-kondo
 .lsp
+.nrepl-port
+.calva
