@@ -34,7 +34,7 @@
         (not-empty remaining) (let [[child remaining] (read-form remaining)]
                                 (recur (update current-list :children #(conj % child))
                                        remaining))
-        :else (throw (ex-info "Unmatched (" {:type "Interpretation error"}))))))
+        :else (throw (ex-info "unbalanced (" {:type "Interpretation error"}))))))
 
 (defn read-form [tokens]
   (case (first tokens)

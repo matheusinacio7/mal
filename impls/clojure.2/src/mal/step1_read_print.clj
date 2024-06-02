@@ -21,15 +21,18 @@
 (defn -main
   ([] (-main ""))
   ([_] (loop []
-    (print "user> ")
-    (flush)
-    (-> (read-line)
-        (#(if (nil? %)
-            (do
-              (println)
-              (println "bye!")
-              (System/exit 0))
-            %))
-        rep
-        println)
-    (recur))))
+         (print "user> ")
+         (flush)
+         (-> (read-line)
+             (#(if (nil? %)
+                 (do
+                   (println)
+                   (println "bye!")
+                   (System/exit 0))
+                 %))
+             (#(try
+                 (rep %)
+                 (catch Exception e
+                   (println (ex-message e)))))
+             println)
+         (recur))))

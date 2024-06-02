@@ -9,7 +9,9 @@
                     :symbol (:name node)
                     :number (str (:value node))
                     :list (str "("
-                               (print-ast final-str (:children node))
+                               (if (empty? (:children node))
+                                 ""
+                                 (print-ast final-str (:children node)))
                                ")"))
          new-final-str (if (nil? final-str)
                          node-str
