@@ -23,4 +23,9 @@
 
 (defn print-evald
   [ast]
-  (str/join "\r\n" ast))
+  (->> ast
+       (map #(cond
+               (and (= (:type %) :list)
+                    (empty? (:children %))) "()"
+               :else %))
+       (str/join "\n")))
