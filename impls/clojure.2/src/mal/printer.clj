@@ -1,4 +1,5 @@
-(ns mal.printer)
+(ns mal.printer 
+  (:require [clojure.string :as str]))
 
 (defn print-ast
   ([ast] (print-ast nil ast))
@@ -19,3 +20,7 @@
      (if (empty? remaining)
        new-final-str
        (recur new-final-str remaining)))))
+
+(defn print-evald
+  [ast]
+  (str/join "\r\n" ast))

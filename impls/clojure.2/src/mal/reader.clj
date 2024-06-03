@@ -1,12 +1,5 @@
 (ns mal.reader)
 
-(defn tokenize [str]
-  (let [regex-expr #"[\s,]*(~@|[\[\]{}()'`~^@]|\"(?:\\.|[^\\\"])*\"?|;.*|[^\s\[\]{}('\"`,;)]*)"
-        matches (re-seq regex-expr str)]
-    (->> matches
-         (map (fn [[_ captured]] captured))
-         (filter #(not= "" %)))))
-
 (defn string-integer? [str]
   (try
     (Integer/parseInt str)
@@ -48,6 +41,13 @@
       forms
       (let [[new-form new-remaining] (read-form remaining)]
         (recur (conj forms new-form) new-remaining)))))
+
+(defn tokenize [str]
+  (let [regex-expr #"[\s,]*(~@|[\[\]{}()'`~^@]|\"(?:\\.|[^\\\"])*\"?|;.*|[^\s\[\]{}('\"`,;)]*)"
+        matches (re-seq regex-expr str)]
+    (->> matches
+         (map second)
+         (filter #(not= "" %)))))
 
 (defn read-str [str]
   (-> str
