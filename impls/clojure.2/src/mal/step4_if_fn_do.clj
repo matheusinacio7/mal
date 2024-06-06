@@ -5,48 +5,55 @@
             [mal.reader :as reader]
             [mal.core :as core]))
 
+(declare eval-form
+         rep
+         READ
+         EVAL
+         PRINT)
+
 (def repl-env (env/create-env nil))
 (doseq [[sym value] mal.core/mal-ns]
-  (env/env-set! repl-env sym value))
-
-(declare eval-form
-         rep)
+  (env/env-set! repl-env sym (if (= (:type value) :clojure-function)
+                                 value
+                                 (EVAL (READ value) repl-env))))
 
 (def special-forms #{"def!" "let*" "do" "if" "fn*"})
 
 (defn eval-special-form [form env]
-  (let [children (:children form)
+  (let [children  (:children form)
         form-name (get-in children [0 :name])]
     (case form-name
       "def!" (let [key   (get-in form [:children 1 :name])
                    value (eval-form (get-in form [:children 2]) env)]
                (env/env-set! env key value)
                value)
-      
+
       "let*" (let [new-env  (env/create-env env)
                    bindings (partition 2 (get-in form [:children 1 :children]))
                    to-eval  (get-in form [:children 2])]
                (doseq [[key-form value] bindings]
                  (env/env-set! new-env (:name key-form) (eval-form value new-env)))
                (eval-form to-eval new-env))
-      
-      "do" (let [forms (butlast (rest children))
+
+      "do" (let [forms     (butlast (rest children))
                  last-form (last children)]
              (doseq [inner-form forms]
                (eval-form inner-form env))
              (eval-form last-form env))
-      
+
       "if" (let [condition (eval-form (nth children 1) env)
-                 then (nth children 2)
-                 else (nth children 3 nil)]
-             (if (#{false nil} condition)
-               (eval-form then env)
+                 then      (nth children 2)
+                 else      (nth children 3 nil)]
+             (if (contains? #{false nil} (:value condition))
                (when (not (nil? else))
-                 (eval-form else env))))
-      
+                 (eval-form else env))
+               (eval-form then env)))
+
       "fn*" (let [binds (nth children 1)
-                  body (nth children 2)]
-              {:type :function, :binds binds, :body body}))))
+                  body  (nth children 2)]
+              {:type  :function
+               :binds binds
+               :body  body}))))
 
 (defn apply-fn [form env args]
   (let [fn-list {:type :list

@@ -14,6 +14,7 @@
                                  ""
                                  (print-ast final-str (:children node)))
                                ")")
+                    :boolean (:value node)
                     :nil "nil"
                     :function "#<function>")
          new-final-str (if (nil? final-str)
