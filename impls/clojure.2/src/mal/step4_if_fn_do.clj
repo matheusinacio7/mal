@@ -1,8 +1,8 @@
 (ns mal.step4-if-fn-do
   (:gen-class) 
-  (:require [mal.printer :as printer]
-            [mal.reader :as reader]
-            [mal.env :as env]))
+  (:require [mal.env :as env]
+            [mal.printer :as printer]
+            [mal.reader :as reader]))
 
 (def repl-env (env/create-env nil))
 (env/env-set! repl-env "+" +)
@@ -29,11 +29,18 @@
                (doseq [[key-form value] bindings]
                  (env/env-set! new-env (:name key-form) (eval-form value new-env)))
                (eval-form to-eval new-env))
-      "do" (let [forms (butlast children)
+      "do" (let [forms (butlast (rest children))
                  last-form (last children)]
-             (for [inner-form form]
-               (eval-form inner-form forms))
-             (eval-form last-form env)))))
+             (doseq [inner-form forms]
+               (eval-form inner-form env))
+             (eval-form last-form env))
+      "if" (let [condition (eval-form (nth children 1) env)
+                 then (nth children 2)
+                 else (nth children 3 nil)]
+             (if (#{false nil} condition)
+               (eval-form then env)
+               (when (not (nil? else))
+                 (eval-form else env)))))))
 
 (defn eval-list [list env]
   (cond

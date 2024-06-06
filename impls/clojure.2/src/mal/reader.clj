@@ -11,6 +11,8 @@
   (let [token (first tokens)
         remaining (rest tokens)
         atom (cond
+               (#{"true" "false"} token) {:type :boolean :value (if (= "true" token) true false)}
+               (= "nil" token) {:type :nil :value nil}
                (string-integer? token) {:value (Integer/parseInt token), :type :number}
                (= "" token) (:type :eof)
                :else {:name token :type :symbol})]

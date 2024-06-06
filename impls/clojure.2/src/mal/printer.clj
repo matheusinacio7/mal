@@ -27,5 +27,6 @@
        (map #(cond
                (and (= (:type %) :list)
                     (empty? (:children %))) "()"
+               (nil? %) "nil"
                :else %))
        (str/join "\n")))
