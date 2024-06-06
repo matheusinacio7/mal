@@ -3,8 +3,9 @@
 (defn print-ast
   ([ast] (print-ast nil ast))
   ([final-str ast]
-   (let [node (first ast)
-         remaining (rest ast)
+   (let [ast-seq (if (seq? ast) ast [ast])
+         node (first ast-seq)
+         remaining (rest ast-seq)
          node-str (case (:type node)
                     :symbol (:name node)
                     :number (str (:value node))
@@ -12,7 +13,9 @@
                                (if (empty? (:children node))
                                  ""
                                  (print-ast final-str (:children node)))
-                               ")"))
+                               ")")
+                    :nil "nil"
+                    :function "#<function>")
          new-final-str (if (nil? final-str)
                          node-str
                          (str final-str " " node-str))]

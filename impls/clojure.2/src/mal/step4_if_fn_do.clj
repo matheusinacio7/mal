@@ -2,13 +2,12 @@
   (:gen-class) 
   (:require [mal.env :as env]
             [mal.printer :as printer]
-            [mal.reader :as reader]))
+            [mal.reader :as reader]
+            [mal.core :as core]))
 
 (def repl-env (env/create-env nil))
-(env/env-set! repl-env "+" +)
-(env/env-set! repl-env "-" -)
-(env/env-set! repl-env "*" *)
-(env/env-set! repl-env "/" /)
+(doseq [[sym value] mal.core/mal-ns]
+  (env/env-set! repl-env sym value))
 
 (declare eval-form
          rep)
@@ -49,13 +48,18 @@
                   body (nth children 2)]
               {:type :function, :binds binds, :body body}))))
 
-(defn apply-fn [fn env args]
+(defn apply-fn [form env args]
   (let [fn-list {:type :list
                  :children [{:type :symbol :name "let*"}
                             {:type :list
-                             :children (into [] (interleave (get-in fn [:binds :children]) args))}
-                            (:body fn)]}]
+                             :children (into [] (interleave (get-in form [:binds :children]) args))}
+                            (:body form)]}]
     (eval-form fn-list env)))
+
+(defn apply-clj-fn [form env args]
+  (let [fn (:fn form)
+        evald-args (doall (map #(eval-form % env) args))]
+    (apply fn evald-args)))
 
 (defn eval-list [list env]
   (cond
@@ -65,15 +69,15 @@
     :else (let [children (:children list)
                 fn       (eval-form (first children) env)
                 args     (rest children)]
-            (if (= (:type fn) :function)
-              (apply-fn fn env args)
-              (apply fn (doall (map #(eval-form % env) args)))))))
+            (case (:type fn)
+              :function (apply-fn fn env args)
+              :clojure-function (apply-clj-fn fn env args)))))
 
 (defn eval-form [form env]
   (case (:type form)
     :symbol (env/env-get env (:name form))
     :list (eval-list form env)
-    (:value form)))
+    form))
 
 (defn READ [in]
   (reader/read-str in))
@@ -86,7 +90,7 @@
     (eval-form new-ast env)))
 
 (defn PRINT [in]
-  (printer/print-evald in))
+  (printer/print-ast in))
 
 (defn rep [in]
   (-> in
