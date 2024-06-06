@@ -1,7 +1,7 @@
 (ns build
   (:require [clojure.tools.build.api :as b]))
 
-(def lib 'heyset/step2_eval)
+(def lib 'heyset/step3_env)
 (def version (format "1.2.%s" (b/git-count-revs nil)))
 (def class-dir "dist/classes")
 (def uber-file (format "dist/%s-standalone.jar" (name lib)))
@@ -17,9 +17,9 @@
   (b/copy-dir {:src-dirs ["src" "resources"]
                :target-dir class-dir})
   (b/compile-clj {:basis @basis
-                  :ns-compile '[mal.step2-eval]
+                  :ns-compile '[mal.step3-env]
                   :class-dir class-dir})
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis @basis
-           :main 'mal.step2-eval}))
+           :main 'mal.step3-env}))

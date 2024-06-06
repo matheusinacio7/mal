@@ -18,4 +18,4 @@
 (defn env-get [env sym]
   (if-let [match-env (env-find env sym)]
     (get-in @match-env [:data sym])
-    (throw (Exception. (str "unbound symbol " sym)))))
+    (throw (Exception. (str sym " not found")))))
