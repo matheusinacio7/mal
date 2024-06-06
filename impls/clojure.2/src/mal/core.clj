@@ -69,6 +69,26 @@
 
              "="      {:type :clojure-function
                        :fn   equal?}
+             
+             "<"      {:type :clojure-function
+                       :fn   (fn [x y]
+                               {:type  :boolean
+                                :value (< (:value x) (:value y))})}
+             
+             ">"      {:type :clojure-function
+                       :fn   (fn [x y]
+                               {:type  :boolean
+                                :value (> (:value x) (:value y))})}
+             
+             "<="      {:type :clojure-function
+                       :fn   (fn [x y]
+                               {:type  :boolean
+                                :value (<= (:value x) (:value y))})}
+             
+             ">="      {:type :clojure-function
+                       :fn   (fn [x y]
+                               {:type  :boolean
+                                :value (>= (:value x) (:value y))})}
 
              "not"    "(fn* (cond)
                          (if cond false true))"})

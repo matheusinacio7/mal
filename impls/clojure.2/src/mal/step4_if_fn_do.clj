@@ -11,14 +11,8 @@
          EVAL
          PRINT)
 
-(def repl-env (env/create-env nil))
-(doseq [[sym value] mal.core/mal-ns]
-  (env/env-set! repl-env sym (case (:type value)
-                               :clojure-function value
-                               :function value
-                               (EVAL (READ value) repl-env))))
-
 (def special-forms #{"def!" "let*" "do" "if" "fn*"})
+(def repl-env (env/create-env nil))
 
 (defn eval-special-form [form env]
   (let [children  (:children form)
@@ -105,6 +99,12 @@
       READ
       (#(EVAL % repl-env))
       PRINT))
+
+(doseq [[sym value] mal.core/mal-ns]
+  (env/env-set! repl-env sym (case (:type value)
+                               :clojure-function value
+                               :function value
+                               (EVAL (READ value) repl-env))))
 
 (defn -main
   ([] (-main ""))
