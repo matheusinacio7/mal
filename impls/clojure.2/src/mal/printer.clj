@@ -1,5 +1,4 @@
-(ns mal.printer 
-  (:require [clojure.string :as str]))
+(ns mal.printer)
 
 (defn print-ast
   ([ast] (print-ast nil ast))
@@ -23,10 +22,9 @@
 
 (defn print-evald
   [ast]
-  (->> ast
-       (map #(cond
-               (and (= (:type %) :list)
-                    (empty? (:children %))) "()"
-               (nil? %) "nil"
-               :else %))
-       (str/join "\n")))
+  (cond
+    (and (= (:type ast) :list)
+         (empty? (:children ast))) "()"
+    (= (:type ast) :function) "#<function>"
+    (nil? ast) "nil"
+    :else ast))
