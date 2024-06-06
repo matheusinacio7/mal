@@ -13,9 +13,10 @@
 
 (def repl-env (env/create-env nil))
 (doseq [[sym value] mal.core/mal-ns]
-  (env/env-set! repl-env sym (if (= (:type value) :clojure-function)
-                                 value
-                                 (EVAL (READ value) repl-env))))
+  (env/env-set! repl-env sym (case (:type value)
+                               :clojure-function value
+                               :function value
+                               (EVAL (READ value) repl-env))))
 
 (def special-forms #{"def!" "let*" "do" "if" "fn*"})
 

@@ -1,28 +1,20 @@
-(ns mal.printer)
+(ns mal.printer 
+  (:require [clojure.string :as str]))
 
 (defn print-ast
-  ([ast] (print-ast nil ast))
-  ([final-str ast]
-   (let [ast-seq (if (seq? ast) ast [ast])
-         node (first ast-seq)
-         remaining (rest ast-seq)
-         node-str (case (:type node)
-                    :symbol (:name node)
-                    :number (str (:value node))
-                    :list (str "("
-                               (if (empty? (:children node))
-                                 ""
-                                 (print-ast final-str (:children node)))
-                               ")")
-                    :boolean (:value node)
-                    :nil "nil"
-                    :function "#<function>")
-         new-final-str (if (nil? final-str)
-                         node-str
-                         (str final-str " " node-str))]
-     (if (empty? remaining)
-       new-final-str
-       (recur new-final-str remaining)))))
+  [ast]
+  (case (:type ast)
+     :symbol (:name ast)
+             :number (str (:value ast))
+             :list (str "("
+                        (if (empty? (:children ast))
+                          ""
+                          (str/join " " (doall (map #(print-ast %) (:children ast)))))
+                        ")")
+             :boolean (:value ast)
+             :nil "nil"
+             :function "#<function>"
+             nil ""))
 
 (defn print-evald
   [ast]
