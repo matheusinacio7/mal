@@ -38,7 +38,7 @@
                                 :value (apply / (doall (map :value args)))})}
 
              "prn"    {:type :clojure-function
-                       :fn   (fn [& x]
+                       :fn   (fn [x]
                                (println (printer/print-ast x))
                                {:type  :nil
                                 :value nil})}
@@ -90,5 +90,6 @@
                                {:type  :boolean
                                 :value (>= (:value x) (:value y))})}
 
-             "not"    "(fn* (cond)
-                         (if cond false true))"})
+             "not"    "(fn* (a)
+                         (if a false true))"
+             })

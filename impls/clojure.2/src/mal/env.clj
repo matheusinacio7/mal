@@ -1,8 +1,10 @@
 (ns mal.env)
 
-(defn create-env [outer]
-  (atom {:outer outer
-         :data {}}))
+(defn create-env
+  ([outer] (create-env outer {}))
+  ([outer data]
+   (atom {:outer outer
+          :data  data})))
 
 (defn env-set! [env sym value]
   (swap! env

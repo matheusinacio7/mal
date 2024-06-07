@@ -39,24 +39,30 @@
       "if" (let [condition (eval-form (nth children 1) env)
                  then      (nth children 2)
                  else      (nth children 3 nil)]
-             (if (contains? #{false nil} (:value condition))
-               (when (not (nil? else))
-                 (eval-form else env))
+             (if (or (= (:type condition) :nil) (false? (:value condition)))
+               (if (not (nil? else))
+                 (eval-form else env)
+                 {:type :nil
+                  :value nil})
                (eval-form then env)))
 
       "fn*" (let [binds (nth children 1)
                   body  (nth children 2)]
               {:type  :function
                :binds binds
-               :body  body}))))
+               :body  body
+               :env env}))))
 
-(defn apply-fn [form env args]
-  (let [fn-list {:type :list
-                 :children [{:type :symbol :name "let*"}
-                            {:type :list
-                             :children (into [] (interleave (get-in form [:binds :children]) args))}
-                            (:body form)]}]
-    (eval-form fn-list env)))
+(defn apply-fn [form args]
+  (let [closure    (:env form)
+        bound-args (zipmap (map :name (get-in form [:binds :children])) args)
+        new-env    (env/create-env closure bound-args)
+        body       {:type     :list
+                    :children [{:type :symbol
+                                :name "do"}
+                               (:body form)]
+                    }]
+    (eval-form body new-env)))
 
 (defn apply-clj-fn [form env args]
   (let [fn (:fn form)
@@ -72,7 +78,7 @@
                 fn       (eval-form (first children) env)
                 args     (rest children)]
             (case (:type fn)
-              :function (apply-fn fn env args)
+              :function (apply-fn fn args)
               :clojure-function (apply-clj-fn fn env args)))))
 
 (defn eval-form [form env]
@@ -104,7 +110,7 @@
   (env/env-set! repl-env sym (case (:type value)
                                :clojure-function value
                                :function value
-                               (EVAL (READ value) repl-env))))
+                               (EVAL (READ value) (env/create-env nil)))))
 
 (defn -main
   ([] (-main ""))
